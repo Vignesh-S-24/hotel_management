@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fallback palette for first paint; theme/index.js overwrites these from colors.js. */
+:root {
+  --hm-primary: 37 99 235;
+  --hm-background: 248 250 252;
+  --hm-surface: 255 255 255;
+  --hm-text-primary: 15 23 42;
+  --hm-text-secondary: 100 116 139;
+  --hm-border: 226 232 240;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-background font-sans text-text-primary antialiased;
+  }
+  *:focus-visible {
+    @apply outline-none ring-2 ring-primary/60 ring-offset-1 ring-offset-surface;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-xl border border-border bg-surface;
+  }
+  .field-control {
+    @apply block w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text-primary
+      placeholder:text-text-secondary/70 transition-colors
+      hover:border-text-secondary/40 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20
+      disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-text-secondary;
+  }
+  .field-control[aria-invalid='true'] {
+    @apply border-error focus:border-error focus:ring-error/20;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+}
+
+@keyframes hm-fade-in { from { opacity: 0 } to { opacity: 1 } }
+@keyframes hm-pop-in { from { opacity: 0; transform: translateY(8px) scale(0.98) } to { opacity: 1; transform: none } }
+@keyframes hm-slide-in { from { transform: translateX(100%) } to { transform: none } }
+@keyframes hm-slide-in-left { from { transform: translateX(-100%) } to { transform: none } }
+.animate-fade-in { animation: hm-fade-in 150ms ease-out }
+.animate-pop-in { animation: hm-pop-in 180ms ease-out }
+.animate-slide-in { animation: hm-slide-in 220ms ease-out }
+.animate-slide-in-left { animation: hm-slide-in-left 220ms ease-out }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in, .animate-pop-in, .animate-slide-in, .animate-slide-in-left { animation: none }
+}
