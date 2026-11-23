@@ -1,6 +1,7 @@
 import { startTransition, useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Bell, ChevronDown, LogOut, Menu, Moon, Repeat, Sun, UserRound } from 'lucide-react'
+import { ChevronDown, LogOut, Menu, Repeat, UserRound } from 'lucide-react'
+import { BellIcon, MoonIcon, SunIcon } from '../icons/NavIcons'
 import { useAuth } from '../../context/AuthContext'
 import { useData } from '../../context/DataContext'
 import { useTheme } from '../../context/ThemeContext'
@@ -75,10 +76,10 @@ export default function HeaderShell({ onMenu, onNotifications, profilePath, prof
       <div className="hidden flex-1 sm:block" />
       <div className="flex items-center gap-1">
         <button type="button" onClick={toggle} className={iconBtn} aria-label={`Switch to ${mode === 'dark' ? 'light' : 'dark'} mode`}>
-          {mode === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          {mode === 'dark' ? <SunIcon className="h-5 w-5" style={{ color: '#4c526c' }} /> : <MoonIcon className="h-5 w-5" style={{ color: '#4c526c' }} />}
         </button>
         <button type="button" onClick={onNotifications} className={iconBtn} aria-haspopup="dialog" aria-label={`Notifications${unreadCount ? `, ${unreadCount} unread` : ''}`}>
-          <Bell className="h-5 w-5" />
+          <BellIcon className="h-5 w-5" style={{ color: '#4c526c' }} />
           {unreadCount > 0 && (
             <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-error px-1 text-[10px] font-semibold leading-none text-white ring-2 ring-surface">
               {unreadCount > 9 ? '9+' : unreadCount}

@@ -1,116 +1,138 @@
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
-import * as yup from 'yup'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { AlertCircle, ConciergeBell, IdCard, Lock, ShieldCheck } from 'lucide-react'
-import CommonButton from '../../components/common/CommonButton'
-import CommonInput from '../../components/common/CommonInput'
-import { useToast } from '../../components/common/CommonToast'
+import { useNavigate } from 'react-router-dom'
+import { Hotel, KeyRound, Mail, ArrowRight, ShieldCheck } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { DEMO_PASSWORD } from '../../data/users'
-import { ROLE_HOME, ROLE_LABELS } from '../../utils/constants'
-
-const schema = yup.object({
-  identifier: yup.string().trim().required('Employee ID or email required'),
-  password: yup.string().required('Password required'),
-  remember: yup.boolean(),
-})
+import { ROLE_LABELS } from '../../utils/constants'
+import { useToast } from '../../components/common/CommonToast'
 
 export default function Login() {
   const { login, users } = useAuth()
   const navigate = useNavigate()
-  const location = useLocation()
   const toast = useToast()
+  const [identifier, setIdentifier] = useState('')
+  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors, isSubmitting },
-  } = useForm({ resolver: yupResolver(schema), defaultValues: { identifier: '', password: '', remember: true } })
 
-  const onSubmit = async ({ identifier, password, remember }) => {
+  const handleSubmit = async (e) => {
+    e?.preventDefault()
     setError('')
-    const res = await login(identifier, password, remember)
+    setLoading(true)
+    const res = await login(identifier, password)
+    setLoading(false)
     if (!res.ok) {
       setError(res.error)
-      return
+    } else {
+      toast.success('Signed in successfully', `Welcome back, ${res.user.name}`)
+      navigate('/app/dashboard')
     }
-    toast.success(`Welcome back, ${res.user.name.split(' ')[0]}`, `Signed in to the ${ROLE_LABELS[res.user.role]} panel.`)
-    const from = location.state?.from
-    const allowed = from && from.startsWith(`/${res.user.role}`)
-    navigate(allowed ? from : ROLE_HOME[res.user.role], { replace: true })
   }
 
-  const fill = (u) => {
-    setValue('identifier', u.email, { shouldValidate: true })
-    setValue('password', DEMO_PASSWORD, { shouldValidate: true })
+  const selectDemoAccount = (user) => {
+    setIdentifier(user.email)
+    setPassword(DEMO_PASSWORD)
     setError('')
   }
 
   return (
-    <div>
-      <h1 className="text-2xl font-semibold tracking-tight text-text-primary">Sign in</h1>
-      <p className="mt-1 text-sm text-text-secondary">Use your Employee ID or email.</p>
-
-      {error && (
-        <div role="alert" className="mt-5 flex gap-2 rounded-lg border border-error/30 bg-error-soft p-3 text-sm text-error">
-          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
-          {error}
+    <div className="w-full max-w-md mx-auto">
+      <div className="text-center mb-8">
+        <div className="mx-auto w-14 h-14 rounded-2xl bg-primary flex items-center justify-center text-white shadow-xl shadow-primary/30 mb-4">
+          <Hotel className="h-8 w-8" />
         </div>
-      )}
-
-      <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4" noValidate>
-        <CommonInput label="Employee ID / Email" icon={IdCard} placeholder="SO-001 or admin@stayops.in" autoComplete="username" error={errors.identifier?.message} {...register('identifier')} />
-        <CommonInput label="Password" type="password" icon={Lock} placeholder="Enter password" autoComplete="current-password" error={errors.password?.message} {...register('password')} />
-        <div className="flex items-center justify-between text-sm">
-          <label className="flex items-center gap-2 text-text-secondary">
-            <input type="checkbox" className="h-4 w-4 rounded border-border text-primary focus:ring-primary" {...register('remember')} />
-            Remember me
-          </label>
-          <Link to="/forgot-password" className="font-medium text-primary hover:text-primary-hover">
-            Forgot Password?
-          </Link>
-        </div>
-        <CommonButton type="submit" fullWidth size="lg" loading={isSubmitting}>
-          Sign In
-        </CommonButton>
-      </form>
-
-      <section className="mt-8" aria-labelledby="demo-accounts">
-        <div className="flex items-center gap-3">
-          <span className="h-px flex-1 bg-border" />
-          <h2 id="demo-accounts" className="text-xs font-medium uppercase tracking-wide text-text-secondary">
-            Prototype demo accounts
-          </h2>
-          <span className="h-px flex-1 bg-border" />
-        </div>
-        <p className="mt-2 text-center text-xs text-text-secondary">
-          Tap an account to fill the form, then Sign In. Password: <code className="rounded bg-surface-muted px-1">{DEMO_PASSWORD}</code>
+        <h1 className="text-2xl font-black text-text tracking-tight">
+          THAI RESIDENCY
+        </h1>
+        <p className="text-sm text-text-muted mt-1">
+          Central Task Management & Hotel Operations
         </p>
-        <ul className="mt-3 grid gap-2">
-          {users.map((u) => {
-            const Icon = u.role === 'admin' ? ShieldCheck : ConciergeBell
-            return (
-              <li key={u.id}>
-                <button type="button" onClick={() => fill(u)} className="flex w-full items-center gap-3 rounded-lg border border-border bg-surface px-3 py-2.5 text-left transition hover:border-primary/40 hover:bg-primary-soft/40">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-soft text-primary">
-                    <Icon className="h-4 w-4" aria-hidden />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-sm font-medium text-text-primary">{u.name}</span>
-                    <span className="block truncate text-xs text-text-secondary">
-                      {u.employeeId} · {u.email}
-                    </span>
-                  </span>
-                  <span className="text-xs font-medium text-text-secondary">{u.role === 'admin' ? 'Admin panel' : 'Client panel'}</span>
-                </button>
-              </li>
-            )
-          })}
-        </ul>
-      </section>
+      </div>
+
+      <div className="bg-surface rounded-2xl border border-border p-6 sm:p-8 shadow-xl mb-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {error && (
+            <div className="p-3 text-xs bg-rose-50 border border-rose-200 text-rose-700 rounded-lg">
+              {error}
+            </div>
+          )}
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-1.5">
+              Email or Employee ID
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                placeholder="e.g. owner@thairesidency.com or TR-001"
+                required
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border bg-surface text-text text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              />
+              <Mail className="w-4 h-4 text-text-muted absolute left-3.5 top-3.5" />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-1.5">
+              Password
+            </label>
+            <div className="relative">
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border bg-surface text-text text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              />
+              <KeyRound className="w-4 h-4 text-text-muted absolute left-3.5 top-3.5" />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 px-4 rounded-xl bg-primary text-white font-semibold text-sm shadow-md hover:bg-primary-hover active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            {loading ? 'Authenticating...' : 'Sign In to Operations'}
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </form>
+      </div>
+
+      {/* Demo Accounts Panel */}
+      <div className="bg-surface-subtle border border-border rounded-2xl p-5">
+        <div className="flex items-center gap-2 mb-3">
+          <ShieldCheck className="w-4 h-4 text-primary" />
+          <h2 className="text-xs font-bold uppercase tracking-wider text-text">
+            Quick Demo Login (Select Role)
+          </h2>
+        </div>
+        <p className="text-xs text-text-muted mb-3">
+          Tap any of the 4 operational roles below to auto-fill credentials:
+        </p>
+
+        <div className="grid grid-cols-1 gap-2">
+          {users.map((u) => (
+            <button
+              key={u.id}
+              type="button"
+              onClick={() => selectDemoAccount(u)}
+              className="flex items-center justify-between p-2.5 rounded-xl border border-border bg-surface hover:border-primary/50 hover:bg-primary/5 transition-all text-left"
+            >
+              <div>
+                <div className="text-xs font-bold text-text">{u.name}</div>
+                <div className="text-[11px] text-text-muted">{u.email} • ID: {u.employeeId}</div>
+              </div>
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
+                {ROLE_LABELS[u.role] || u.role}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }

@@ -1,21 +1,27 @@
-import { Navigate, Outlet, useLocation } from 'react-router-dom'
+import { Navigate, Outlet } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { ROLE_HOME } from '../utils/constants'
+import CommonLoader from '../components/common/CommonLoader'
 
 export default function ProtectedRoute({ roles }) {
-  const { user } = useAuth()
-  const location = useLocation()
-  if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />
-  if (roles && !roles.includes(user.role)) return <Navigate to="/unauthorized" replace state={{ from: location.pathname }} />
+  const { user, loading } = useAuth()
+
+  if (loading) return <CommonLoader fullPage />
+  if (!user) return <Navigate to="/login" replace />
+  if (roles && !roles.includes(user.role)) return <Navigate to="/unauthorized" replace />
+
   return <Outlet />
 }
 
 export function GuestRoute() {
-  const { user } = useAuth()
-  return user ? <Navigate to={ROLE_HOME[user.role]} replace /> : <Outlet />
+  const { user, loading } = useAuth()
+  if (loading) return <CommonLoader fullPage />
+  if (user) return <Navigate to="/app/dashboard" replace />
+  return <Outlet />
 }
 
 export function RoleRedirect() {
-  const { user } = useAuth()
-  return <Navigate to={user ? ROLE_HOME[user.role] : '/login'} replace />
+  const { user, loading } = useAuth()
+  if (loading) return <CommonLoader fullPage />
+  if (!user) return <Navigate to="/login" replace />
+  return <Navigate to="/app/dashboard" replace />
 }

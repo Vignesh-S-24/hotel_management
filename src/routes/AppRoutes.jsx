@@ -1,103 +1,69 @@
-import { Suspense, lazy, useEffect } from 'react'
+import { Suspense, lazy } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import CommonLoader from '../components/common/CommonLoader'
-import AdminLayout from '../layouts/AdminLayout'
+import AppLayout from '../layouts/AppLayout'
 import AuthLayout from '../layouts/AuthLayout'
-import ClientLayout from '../layouts/ClientLayout'
 import ProtectedRoute, { GuestRoute, RoleRedirect } from './ProtectedRoute'
 
-// Lazy pages are also preloaded once the browser is idle, so the first visit to a page doesn't wait on its chunk.
-const preloaders = []
-const page = (load) => {
-  preloaders.push(load)
-  return lazy(load)
-}
+const Login = lazy(() => import('../pages/auth/Login'))
+const NotFound = lazy(() => import('../pages/NotFound'))
+const Unauthorized = lazy(() => import('../pages/Unauthorized'))
 
-const Login = page(() => import('../pages/auth/Login'))
-const ForgotPassword = page(() => import('../pages/auth/ForgotPassword'))
-const ResetPassword = page(() => import('../pages/auth/ResetPassword'))
-const NotFound = page(() => import('../pages/NotFound'))
-const Unauthorized = page(() => import('../pages/Unauthorized'))
+// Shared Thai Residency Modules
+const Dashboard = lazy(() => import('../pages/shared/DashboardPage'))
+const RoomsPage = lazy(() => import('../pages/shared/RoomsPage'))
+const FloorWalkPage = lazy(() => import('../pages/shared/FloorWalkPage'))
+const LaundryPage = lazy(() => import('../pages/shared/LaundryPage'))
+const SuppliesPage = lazy(() => import('../pages/shared/SuppliesPage'))
+const StockPage = lazy(() => import('../pages/shared/StockPage'))
+const ReportsPage = lazy(() => import('../pages/shared/ReportsPage'))
+const UsersPage = lazy(() => import('../pages/shared/UsersPage'))
 
-const AdminDashboard = page(() => import('../pages/admin/Dashboard'))
-const RoomList = page(() => import('../pages/admin/rooms/RoomList'))
-const RoomForm = page(() => import('../pages/admin/rooms/RoomForm'))
-const RoomDetails = page(() => import('../pages/admin/rooms/RoomDetails'))
-const HousekeepingList = page(() => import('../pages/admin/housekeeping/HousekeepingList'))
-const InspectionList = page(() => import('../pages/admin/inspections/InspectionList'))
-const StaffList = page(() => import('../pages/admin/staff/StaffList'))
-const InventoryList = page(() => import('../pages/admin/inventory/InventoryList'))
-const MaintenanceList = page(() => import('../pages/admin/maintenance/MaintenanceList'))
-const Reports = page(() => import('../pages/admin/reports/Reports'))
-const Settings = page(() => import('../pages/admin/settings/Settings'))
-const ActivityLog = page(() => import('../pages/admin/activity/ActivityLog'))
-
-const ClientDashboard = page(() => import('../pages/client/Dashboard'))
-const RoomBoard = page(() => import('../pages/client/rooms/RoomBoard'))
-const HousekeepingRequests = page(() => import('../pages/client/housekeeping/HousekeepingRequests'))
-const MyInspections = page(() => import('../pages/client/inspections/MyInspections'))
-const MaintenanceRequests = page(() => import('../pages/client/maintenance/MaintenanceRequests'))
-const MyReports = page(() => import('../pages/client/reports/MyReports'))
-const Profile = page(() => import('../pages/client/profile/Profile'))
+// Role-Specific Portals
+const OwnerPortal = lazy(() => import('../pages/owner/OwnerPortal'))
+const TaskVerificationPage = lazy(() => import('../pages/supervisor/TaskVerificationPage'))
+const RoomVerificationPage = lazy(() => import('../pages/fo/RoomVerificationPage'))
+const CleaningTimerChecklist = lazy(() => import('../pages/hk/CleaningTimerChecklist'))
+const MyStockRequests = lazy(() => import('../pages/hk/MyStockRequests'))
 
 export default function AppRoutes() {
-  useEffect(() => {
-    const preload = () => preloaders.forEach((load) => load().catch(() => {}))
-    if ('requestIdleCallback' in window) {
-      const id = window.requestIdleCallback(preload)
-      return () => window.cancelIdleCallback(id)
-    }
-    const id = setTimeout(preload, 1500)
-    return () => clearTimeout(id)
-  }, [])
-
   return (
     <Suspense fallback={<CommonLoader fullPage />}>
       <Routes>
         <Route path="/" element={<RoleRedirect />} />
 
+        {/* Guest Authentication */}
         <Route element={<GuestRoute />}>
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<Login />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
           </Route>
         </Route>
 
-        <Route element={<ProtectedRoute roles={['admin']} />}>
-          <Route path="/admin" element={<AdminLayout />}>
+        {/* Authenticated Application */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/app" element={<AppLayout />}>
             <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard" element={<AdminDashboard />} />
-            <Route path="rooms" element={<RoomList />} />
-            <Route path="rooms/new" element={<RoomForm />} />
-            <Route path="rooms/:roomId" element={<RoomDetails />} />
-            <Route path="rooms/:roomId/edit" element={<RoomForm />} />
-            <Route path="housekeeping" element={<HousekeepingList />} />
-            <Route path="inspections" element={<InspectionList />} />
-            <Route path="staff" element={<StaffList />} />
-            <Route path="inventory" element={<InventoryList />} />
-            <Route path="maintenance" element={<MaintenanceList />} />
-            <Route path="reports" element={<Reports />} />
-            <Route path="settings" element={<Settings />} />
-            <Route path="activity" element={<ActivityLog />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="tasks" element={<TaskVerificationPage />} />
+            <Route path="floor-walk" element={<FloorWalkPage />} />
+            <Route path="rooms" element={<RoomsPage />} />
+            <Route path="laundry" element={<LaundryPage />} />
+            <Route path="supplies" element={<SuppliesPage />} />
+            <Route path="stock" element={<StockPage />} />
+            <Route path="reports" element={<ReportsPage />} />
+            <Route path="users" element={<UsersPage />} />
+
+            {/* Role-Specific Direct Routes */}
+            <Route path="owner-control" element={<OwnerPortal />} />
+            <Route path="room-verification" element={<RoomVerificationPage />} />
+            <Route path="cleaning-timer" element={<CleaningTimerChecklist />} />
+            <Route path="my-stock" element={<MyStockRequests />} />
+
             <Route path="*" element={<NotFound embedded />} />
           </Route>
         </Route>
 
-        <Route element={<ProtectedRoute roles={['client']} />}>
-          <Route path="/client" element={<ClientLayout />}>
-            <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard" element={<ClientDashboard />} />
-            <Route path="rooms" element={<RoomBoard />} />
-            <Route path="housekeeping" element={<HousekeepingRequests />} />
-            <Route path="inspections" element={<MyInspections />} />
-            <Route path="maintenance" element={<MaintenanceRequests />} />
-            <Route path="reports" element={<MyReports />} />
-            <Route path="profile" element={<Profile />} />
-            <Route path="*" element={<NotFound embedded />} />
-          </Route>
-        </Route>
-
+        {/* Fallbacks */}
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

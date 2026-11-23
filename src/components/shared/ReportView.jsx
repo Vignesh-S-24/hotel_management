@@ -1,7 +1,7 @@
 import { Download, Printer } from 'lucide-react'
 import CommonButton from '../common/CommonButton'
 import CommonCard, { StatCard } from '../common/CommonCard'
-import CommonEmptyState from '../common/CommonEmptyState'
+import CommonTable from '../common/CommonTable'
 import { useToast } from '../common/CommonToast'
 import { exportCsv } from '../../utils/exportCsv'
 import BarList from './BarList'
@@ -17,6 +17,12 @@ export default function ReportView({ report, filename }) {
     exportCsv(filename, columns, rows)
     toast.success('Report exported', `${rows.length} rows saved as CSV (mock data).`)
   }
+
+  const tableColumns = columns.map((c) => ({
+    key: c.key,
+    header: c.header,
+    render: (r) => (c.value ? c.value(r) : r[c.key]),
+  }))
 
   return (
     <div className="space-y-6">
@@ -45,34 +51,11 @@ export default function ReportView({ report, filename }) {
           </div>
         }
       >
-        {rows.length === 0 ? (
-          <CommonEmptyState title="Nothing in this period" description="Widen the date range or clear the status filter." />
-        ) : (
-          <div className="relative max-h-[calc(100vh-16rem)] overflow-auto">
-            <table className="w-full min-w-[640px] text-left text-sm">
-              <thead className="sticky top-0 z-10 border-b border-border bg-surface-muted shadow-sm text-xs uppercase tracking-wide text-text-secondary">
-                <tr>
-                  {columns.map((c) => (
-                    <th key={c.key} scope="col" className="whitespace-nowrap px-4 py-3 font-medium">
-                      {c.header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {rows.slice(0, 200).map((r, i) => (
-                  <tr key={r.id ?? i}>
-                    {columns.map((c) => (
-                      <td key={c.key} className="whitespace-nowrap px-4 py-2.5 text-text-primary">
-                        {c.value ? c.value(r) : r[c.key]}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <CommonTable
+          columns={tableColumns}
+          rows={rows.slice(0, 200)}
+          rowKey="id"
+        />
       </CommonCard>
     </div>
   )

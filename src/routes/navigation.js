@@ -1,56 +1,68 @@
 import {
-  BarChart3,
-  BedDouble,
-  Boxes,
-  ClipboardCheck,
-  FileBarChart,
-  History,
-  LayoutDashboard,
-  Settings,
-  Sparkles,
-  UserRound,
-  Users,
-  Wrench,
-} from 'lucide-react'
+  DashboardIcon,
+  TasksIcon,
+  FloorWalkIcon,
+  RoomIcon,
+  LaundryIcon,
+  SuppliesIcon,
+  StockIcon,
+  ReportsIcon,
+  UsersIcon,
+} from '../components/icons/NavIcons'
+import { ROLES } from '../utils/constants'
 
+export const getNavItems = (role) => {
+  switch (role) {
+    case ROLES.OWNER:
+      return [
+        { label: 'Overview', to: '/app/dashboard', icon: DashboardIcon, section: 'Management' },
+        { label: 'Owner Controls', to: '/app/owner-control', icon: TasksIcon, section: 'Management' },
+        { label: 'Employees & Roles', to: '/app/users', icon: UsersIcon, section: 'Management' },
+        { label: 'All Tasks & Verification', to: '/app/tasks', icon: TasksIcon, section: 'Operations' },
+        { label: 'Floor Walks', to: '/app/floor-walk', icon: FloorWalkIcon, section: 'Operations' },
+        { label: 'Room Operations', to: '/app/rooms', icon: RoomIcon, section: 'Operations' },
+        { label: 'Laundry Tracking', to: '/app/laundry', icon: LaundryIcon, section: 'Resources' },
+        { label: 'Daily Supplies', to: '/app/supplies', icon: SuppliesIcon, section: 'Resources' },
+        { label: 'Central Stock', to: '/app/stock', icon: StockIcon, section: 'Resources' },
+        { label: 'Reports & Audits', to: '/app/reports', icon: ReportsIcon, section: 'Reports' },
+      ]
 
-export const adminNav = [
-  { label: 'Dashboard', to: '/admin/dashboard', icon: LayoutDashboard, apk: true, section: 'Overview' },
-  { label: 'Reports', to: '/admin/reports', icon: BarChart3, apk: true, section: 'Overview' },
-  { label: 'Activity Log', to: '/admin/activity', icon: History, apk: false, note: 'Web-only audit trail', section: 'Overview' },
-  { label: 'Rooms', to: '/admin/rooms', icon: BedDouble, apk: true, section: 'Operations' },
-  { label: 'Housekeeping', to: '/admin/housekeeping', icon: Sparkles, apk: true, section: 'Operations' },
-  { label: 'Inspections', to: '/admin/inspections', icon: ClipboardCheck, apk: true, section: 'Operations' },
-  { label: 'Maintenance', to: '/admin/maintenance', icon: Wrench, apk: true, note: 'APK name: Repairs', section: 'Operations' },
-  { label: 'Staff', to: '/admin/staff', icon: Users, apk: true, section: 'Resources' },
-  { label: 'Inventory', to: '/admin/inventory', icon: Boxes, apk: true, section: 'Resources' },
-  { label: 'Settings', to: '/admin/settings', icon: Settings, apk: true, section: 'Admin' },
-]
+    case ROLES.SUPERVISOR:
+      return [
+        { label: 'Dashboard', to: '/app/dashboard', icon: DashboardIcon, section: 'Overview' },
+        { label: 'Daily Tasks & Assignment', to: '/app/tasks', icon: TasksIcon, section: 'Operations' },
+        { label: 'Floor Walk Inspections', to: '/app/floor-walk', icon: FloorWalkIcon, section: 'Operations' },
+        { label: 'Room Cleaning Management', to: '/app/rooms', icon: RoomIcon, section: 'Operations' },
+        { label: 'Laundry Operations', to: '/app/laundry', icon: LaundryIcon, section: 'Operations' },
+        { label: 'Daily Supplies', to: '/app/supplies', icon: SuppliesIcon, section: 'Resources' },
+        { label: 'Stock Management', to: '/app/stock', icon: StockIcon, section: 'Resources' },
+        { label: 'Operational Reports', to: '/app/reports', icon: ReportsIcon, section: 'Reports' },
+      ]
 
-export const clientNav = [
-  { label: 'Dashboard', to: '/client/dashboard', icon: LayoutDashboard, apk: true, section: 'Overview' },
-  { label: 'My Reports', to: '/client/reports', icon: FileBarChart, apk: true, note: 'APK: Reception Report', section: 'Overview' },
-  { label: 'Rooms', to: '/client/rooms', icon: BedDouble, apk: true, note: 'APK: Room Board', section: 'Front desk' },
-  { label: 'Housekeeping Requests', to: '/client/housekeeping', icon: Sparkles, apk: false, note: 'Assumption built on APK checkout flow', section: 'Front desk' },
-  { label: 'Inspections', to: '/client/inspections', icon: ClipboardCheck, apk: true, note: 'Receptionists inspect rooms in the APK', section: 'Front desk' },
-  { label: 'Maintenance Requests', to: '/client/maintenance', icon: Wrench, apk: true, note: 'APK: Repair reported', section: 'Front desk' },
-  { label: 'My Profile', to: '/client/profile', icon: UserRound, apk: true, section: 'Account' },
-]
+    case ROLES.FO:
+      return [
+        { label: 'Front Office Dashboard', to: '/app/dashboard', icon: DashboardIcon, section: 'Overview' },
+        { label: 'Room Verification', to: '/app/room-verification', icon: RoomIcon, section: 'Rooms' },
+        { label: 'All Rooms Board', to: '/app/rooms', icon: RoomIcon, section: 'Rooms' },
+        { label: 'My Assigned Tasks', to: '/app/tasks', icon: TasksIcon, section: 'Tasks' },
+        { label: 'Floor Walk Logs', to: '/app/floor-walk', icon: FloorWalkIcon, section: 'Inspections' },
+        { label: 'Daily Supplies', to: '/app/supplies', icon: SuppliesIcon, section: 'Supplies' },
+        { label: 'Stock & Issuance', to: '/app/stock', icon: StockIcon, section: 'Stock' },
+        { label: 'Reports', to: '/app/reports', icon: ReportsIcon, section: 'Reports' },
+      ]
 
-export const crumbLabels = {
-  admin: 'Admin',
-  client: 'Reception',
-  dashboard: 'Dashboard',
-  rooms: 'Rooms',
-  housekeeping: 'Housekeeping',
-  inspections: 'Inspections',
-  staff: 'Staff',
-  inventory: 'Inventory',
-  maintenance: 'Maintenance',
-  reports: 'Reports',
-  settings: 'Settings',
-  activity: 'Activity Log',
-  profile: 'My Profile',
-  new: 'New',
-  edit: 'Edit',
+    case ROLES.HK:
+      return [
+        { label: 'HK Dashboard', to: '/app/dashboard', icon: DashboardIcon, section: 'Overview' },
+        { label: 'Cleaning Timer & Checklist', to: '/app/cleaning-timer', icon: TasksIcon, section: 'Housekeeping' },
+        { label: 'My Assigned Tasks', to: '/app/tasks', icon: TasksIcon, section: 'Housekeeping' },
+        { label: 'Room Cleaning Tasks', to: '/app/rooms', icon: RoomIcon, section: 'Housekeeping' },
+        { label: 'My Stock & Requests', to: '/app/my-stock', icon: StockIcon, section: 'Inventory' },
+        { label: 'Laundry Tasks', to: '/app/laundry', icon: LaundryIcon, section: 'Laundry' },
+        { label: 'Daily Supplies', to: '/app/supplies', icon: SuppliesIcon, section: 'Supplies' },
+      ]
+
+    default:
+      return []
+  }
 }

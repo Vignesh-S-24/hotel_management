@@ -54,7 +54,7 @@ export default function ForgotPassword() {
       <h1 className="text-2xl font-semibold tracking-tight text-text-primary">Forgot password?</h1>
       <p className="mt-1 text-sm text-text-secondary">Enter your Employee ID or email and we&apos;ll prepare a reset link.</p>
       <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4" noValidate>
-        <CommonInput label="Employee ID / Email" icon={IdCard} placeholder="SO-101 or priya@stayops.in" error={errors.identifier?.message} {...register('identifier')} />
+        <CommonInput label="Employee ID / Email" icon={IdCard} placeholder="TR-101 or priya@thairesidency.com" error={errors.identifier?.message} {...register('identifier')} />
         <CommonButton type="submit" fullWidth size="lg" loading={isSubmitting}>
           Send reset request
         </CommonButton>
