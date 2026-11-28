@@ -174,7 +174,7 @@ export default function LaundryPage() {
       </div>
 
       {/* Live Laundry Items Table */}
-      <div className="bg-surface rounded-lg border border-border overflow-hidden shadow-sm">
+      <div className="space-y-3">
         <div className="p-4 border-b border-border flex items-center justify-between">
           <h2 className="text-sm font-bold text-text">Current Laundry Stock Status</h2>
           <span className="text-xs text-text-muted">Updated in real-time</span>

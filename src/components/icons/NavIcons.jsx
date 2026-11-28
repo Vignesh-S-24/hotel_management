@@ -83,6 +83,21 @@ export const TrainingIcon = (props) => (
   </Outline>
 )
 
+export const MaintenanceIcon = (props) => (
+  <Outline {...props}>
+    <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z" />
+  </Outline>
+)
+
+export const BreakfastIcon = (props) => (
+  <Outline {...props}>
+    <path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z" />
+    <line x1="6" y1="1" x2="6" y2="4" />
+    <line x1="10" y1="1" x2="10" y2="4" />
+    <line x1="14" y1="1" x2="14" y2="4" />
+  </Outline>
+)
+
 export const ReportsIcon = (props) => (
   <Outline {...props}>
     <path d="M14 3H8a3 3 0 00-3 3v12a3 3 0 003 3h8a3 3 0 003-3V8l-5-5z" />

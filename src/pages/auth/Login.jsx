@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Hotel, KeyRound, Mail, ArrowRight, ShieldCheck } from 'lucide-react'
+import { KeyRound, Mail, ArrowRight, ShieldCheck } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { DEMO_PASSWORD } from '../../data/users'
 import { ROLE_LABELS } from '../../utils/constants'
 import { useToast } from '../../components/common/CommonToast'
+import thaiLogo from '../../assets/logo/ThaiLogo.svg'
 
 export default function Login() {
   const { login, users } = useAuth()
@@ -38,8 +39,14 @@ export default function Login() {
   return (
     <div className="w-full max-w-md mx-auto">
       <div className="text-center mb-8">
-        <div className="mx-auto w-14 h-14 rounded-2xl bg-primary flex items-center justify-center text-white shadow-xl shadow-primary/30 mb-4">
-          <Hotel className="h-8 w-8" />
+        <div className="mx-auto flex items-center justify-center mb-4">
+          <div className="bg-white rounded-xl px-6 py-3.5 shadow-md border border-white/20 inline-flex items-center justify-center">
+            <img
+              src={thaiLogo}
+              alt="Thai Residency Logo"
+              className="h-14 w-32 object-contain"
+            />
+          </div>
         </div>
         <h1 className="text-2xl font-black text-text tracking-tight">
           THAI RESIDENCY

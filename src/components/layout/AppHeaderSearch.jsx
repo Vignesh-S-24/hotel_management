@@ -104,7 +104,7 @@ export default function AppHeaderSearch({ className = '' }) {
         icon: Users,
         title: u.name,
         subtitle: `${u.employeeId} · ${u.title}`,
-        to: '/app/users',
+        to: '/app/profile',
       }))
 
     return [

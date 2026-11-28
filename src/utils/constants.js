@@ -1,4 +1,3 @@
-// Thai Residency Central Task Management Constants
 
 export const HOTEL_NAME = 'Thai Residency'
 
@@ -135,6 +134,74 @@ export const STOCK_CATEGORIES = [
   'EB',
   'Plumbing',
   'Others',
+]
+
+// Maintenance Statuses (Section 19.6)
+export const MAINTENANCE_STATUS = {
+  PENDING: 'pending',
+  ASSIGNED: 'assigned',
+  IN_PROGRESS: 'in_progress',
+  COMPLETED: 'completed',
+  VERIFIED: 'verified',
+  REOPENED: 'reopened',
+}
+
+export const MAINTENANCE_STATUS_LABELS = {
+  [MAINTENANCE_STATUS.PENDING]: 'Pending',
+  [MAINTENANCE_STATUS.ASSIGNED]: 'Assigned',
+  [MAINTENANCE_STATUS.IN_PROGRESS]: 'In Progress',
+  [MAINTENANCE_STATUS.COMPLETED]: 'Completed',
+  [MAINTENANCE_STATUS.VERIFIED]: 'Verified',
+  [MAINTENANCE_STATUS.REOPENED]: 'Reopened',
+}
+
+export const MAINTENANCE_CATEGORIES = [
+  'Electrical / EB',
+  'Plumbing',
+  'Carpentry',
+  'AC',
+  'TV / Electronics',
+  'Painting / Civil',
+  'Housekeeping Equipment',
+  'Other',
+]
+
+export const MAINTENANCE_AREAS = [
+  'Reception',
+  'Corridor',
+  'Staircase',
+  'Car Parking',
+  'Kitchen',
+  'Staff Bathroom',
+  'Other',
+]
+
+export const MEAL_TYPES = {
+  BREAKFAST: 'Breakfast',
+  LUNCH: 'Lunch',
+  DINNER: 'Dinner',
+}
+
+export const MEAL_TYPE_OPTIONS = [
+  { value: 'Breakfast', label: 'Breakfast (Morning)' },
+  { value: 'Lunch', label: 'Lunch (Afternoon)' },
+  { value: 'Dinner', label: 'Dinner (Night)' },
+]
+
+export const BREAKFAST_WASTAGE_REASONS = [
+  'Excess Prepared',
+  'Spoiled',
+  'Spilled / Damaged',
+  'Returned by Guest',
+  'Other',
+]
+
+export const FOOD_WASTAGE_REASONS = [
+  'Excess Prepared',
+  'Spoiled',
+  'Spilled / Damaged',
+  'Returned by Guest',
+  'Other',
 ]
 
 // Wastage Reasons (Section 17)

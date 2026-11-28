@@ -11,7 +11,7 @@ export default function CommonDrawer({ open, onClose, title, description, childr
 
   return createPortal(
     <div className="fixed inset-0 z-50">
-      <div className="animate-fade-in absolute inset-0 bg-slate-900/50" onClick={onClose} aria-hidden />
+      <div className="animate-fade-in absolute inset-0 bg-slate-900/30 backdrop-blur-[2px]" onClick={onClose} aria-hidden />
       <aside
         ref={panelRef}
         role="dialog"

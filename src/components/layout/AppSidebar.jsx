@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
-import { Hotel, X } from 'lucide-react'
+import { X } from 'lucide-react'
+import thaiLogo from '../../assets/logo/ThaiLogo.svg'
 import { useAuth } from '../../context/AuthContext'
 import { getNavItems } from '../../routes/navigation'
 import { ROLE_LABELS } from '../../utils/constants'
@@ -7,7 +8,7 @@ import { ROLE_LABELS } from '../../utils/constants'
 function ZohoCollapseIcon({ collapsed }) {
   return (
     <svg
-      className={`h-5 w-5 transition-transform duration-300 ${collapsed ? '' : 'rotate-180'}`}
+      className={`h-4 w-4 transition-transform duration-300 ${collapsed ? '' : 'rotate-180'}`}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -28,9 +29,13 @@ export default function AppSidebar({ open, onClose, collapsed, onToggleCollapse 
   const { user } = useAuth()
   const navItems = getNavItems(user?.role)
 
-  // Group items by section when expanded; flatten or display directly when collapsed
+  // Group items by section matching screenshot taxonomy:
+  // OVERVIEW, ROOMS & HOUSEKEEPING, SUPPLIES & STOCK, MANAGEMENT, etc.
   const sections = navItems.reduce((acc, item) => {
-    const sec = item.section || 'General'
+    let sec = (item.section || 'General').toUpperCase()
+    if (sec === 'OPERATIONS') sec = 'ROOMS & HOUSEKEEPING'
+    if (sec === 'RESOURCES') sec = 'SUPPLIES & STOCK'
+    if (sec === 'REPORTS') sec = 'REPORTS & AUDIT'
     if (!acc[sec]) acc[sec] = []
     acc[sec].push(item)
     return acc
@@ -42,27 +47,29 @@ export default function AppSidebar({ open, onClose, collapsed, onToggleCollapse 
       {open && (
         <div
           onClick={onClose}
-          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
         />
       )}
 
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-50 flex flex-col border-r border-border bg-surface transition-all duration-300 ease-in-out ${
-          collapsed ? 'lg:w-[72px]' : 'lg:w-64'
+        className={`fixed top-0 bottom-0 left-0 z-50 flex flex-col border-r border-[#152344] bg-[#0E1A38] text-slate-200 transition-all duration-300 ease-in-out ${
+          collapsed ? 'lg:w-[76px]' : 'lg:w-64'
         } ${open ? 'w-64 translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
       >
         {/* Brand Header */}
-        <div className={`flex h-16 items-center border-b border-border ${collapsed ? 'justify-center px-2' : 'justify-between px-4'}`}>
+        <div className={`flex h-16 items-center border-b border-[#1A2B55] ${collapsed ? 'justify-center px-2' : 'justify-between px-4'}`}>
           <div className="flex items-center gap-3 overflow-hidden">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-white shadow-md">
-              <Hotel className="h-5 w-5" />
-            </div>
+            <img
+              src={thaiLogo}
+              alt="Thai Residency Logo"
+              className="h-10 w-10 shrink-0 object-contain rounded-md"
+            />
             {!collapsed && (
               <div className="transition-opacity duration-200">
-                <span className="block font-bold text-sm tracking-wide text-text whitespace-nowrap">
+                <span className="block font-bold text-sm tracking-wide text-white whitespace-nowrap">
                   THAI RESIDENCY
                 </span>
-                <span className="block text-[10px] font-medium text-text-muted uppercase whitespace-nowrap">
+                <span className="block text-[10px] font-medium text-[#E0AE55] uppercase whitespace-nowrap">
                   Task Management
                 </span>
               </div>
@@ -71,32 +78,27 @@ export default function AppSidebar({ open, onClose, collapsed, onToggleCollapse 
 
           <button
             onClick={onClose}
-            className="rounded-lg p-1 text-text-muted hover:bg-surface-hover lg:hidden"
+            className="lg:hidden rounded-lg p-1 text-slate-300 hover:bg-white/10"
             aria-label="Close menu"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        {/* Current user role banner (expanded only) */}
+        {/* Current user role banner (expanded only, clean dark badge) */}
         {!collapsed && (
-          <div className="p-3 mx-3 mt-3 rounded-lg bg-surface-subtle border border-border transition-all">
-            <p className="text-[11px] font-semibold text-text-muted uppercase tracking-wider">
-              Active Role
-            </p>
-            <p className="text-xs font-bold text-primary mt-0.5 truncate">
-              {ROLE_LABELS[user?.role]}
-            </p>
-            <p className="text-[11px] text-text-muted truncate mt-0.5">
-              {user?.name}
-            </p>
+          <div className="px-4 py-2 bg-[#122045]/60 border-b border-[#1A2B55]/60 flex items-center justify-between text-[11px]">
+            <span className="text-slate-400 font-medium">Logged as:</span>
+            <span className="text-[#E0AE55] font-semibold truncate max-w-[140px]">
+              {ROLE_LABELS[user?.role] || user?.role}
+            </span>
           </div>
         )}
 
         {/* Navigation list */}
-        <nav className={`flex-1 overflow-y-auto py-3 scrollbar-thin ${collapsed ? 'px-1 space-y-1' : 'px-2 space-y-4'}`}>
+        <nav className={`flex-1 overflow-y-auto py-3 scrollbar-thin ${collapsed ? 'px-1 space-y-1' : 'px-3 space-y-4'}`}>
           {collapsed ? (
-            /* Zoho Books Collapsed View: Large Icon on Top + Small Text Underneath */
+            /* Collapsed View */
             <div className="space-y-1">
               {navItems.map((item) => {
                 const Icon = item.icon
@@ -108,28 +110,25 @@ export default function AppSidebar({ open, onClose, collapsed, onToggleCollapse 
                     className={({ isActive }) =>
                       `flex flex-col items-center justify-center py-2.5 px-1 rounded-md transition-all group relative ${
                         isActive
-                          ? 'bg-primary text-white font-semibold shadow-sm'
-                          : 'text-text-secondary hover:bg-surface-muted hover:text-text-primary'
+                          ? 'bg-[#1D3060] text-white font-semibold border-l-4 border-[#C2903C]'
+                          : 'text-slate-300 hover:bg-[#16274E] hover:text-white'
                       }`
                     }
                   >
                     {({ isActive }) => (
                       <>
                         <Icon
-                          className={`h-6 w-6 shrink-0 mb-1 transition-colors ${
-                            isActive ? 'text-white' : 'text-text-secondary group-hover:text-text-primary'
+                          className={`h-5 w-5 shrink-0 mb-1 transition-colors ${
+                            isActive ? 'text-[#E0AE55]' : 'text-slate-300 group-hover:text-white'
                           }`}
                         />
                         <span
                           className={`text-[10px] font-medium leading-tight text-center truncate max-w-[62px] ${
-                            isActive ? 'text-white' : 'text-text-secondary group-hover:text-text-primary'
+                            isActive ? 'text-white' : 'text-slate-300 group-hover:text-white'
                           }`}
                         >
                           {item.label.split(' ')[0]}
                         </span>
-
-                        {/* Zoho Books Triangle Corner Marker for Active Menu */}
-                        <span className="absolute bottom-1 right-1 border-b-[5px] border-r-[5px] border-b-primary/60 border-r-primary/60 border-t-[5px] border-l-[5px] border-t-transparent border-l-transparent opacity-0 group-[.active]:opacity-100" />
                       </>
                     )}
                   </NavLink>
@@ -137,13 +136,13 @@ export default function AppSidebar({ open, onClose, collapsed, onToggleCollapse 
               })}
             </div>
           ) : (
-            /* Expanded View: Icon + Label with Sections */
+            /* Expanded View: Section headers in gold-tinted smallcaps (#8A9CBF) and active item with pill #1D3060 */
             Object.entries(sections).map(([sectionName, items]) => (
               <div key={sectionName}>
-                <div className="px-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-text-secondary/70 truncate">
+                <div className="px-3 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-[#E0AE55]">
                   {sectionName}
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   {items.map((item) => {
                     const Icon = item.icon
                     return (
@@ -152,25 +151,21 @@ export default function AppSidebar({ open, onClose, collapsed, onToggleCollapse 
                         to={item.to}
                         onClick={() => onClose && onClose()}
                         className={({ isActive }) =>
-                          `flex items-center gap-3 rounded-md py-2 px-3 transition-all group ${
+                          `flex items-center gap-3 rounded-lg py-2 px-3 text-[13px] transition-all relative ${
                             isActive
-                              ? 'bg-primary text-white shadow-sm font-semibold'
-                              : 'text-text-secondary hover:bg-surface-muted hover:text-text-primary'
+                              ? 'bg-[#1E3366] text-white font-semibold shadow-sm border-l-4 border-[#C2903C]'
+                              : 'text-slate-300 hover:bg-[#15254A] hover:text-white'
                           }`
                         }
                       >
                         {({ isActive }) => (
                           <>
                             <Icon
-                              className={`h-5 w-5 shrink-0 transition-colors ${
-                                isActive ? 'text-white' : 'text-text-secondary group-hover:text-text-primary'
+                              className={`h-4 w-4 shrink-0 transition-colors ${
+                                isActive ? 'text-[#E0AE55]' : 'text-slate-400'
                               }`}
                             />
-                            <span
-                              className={`text-xs font-medium whitespace-nowrap overflow-hidden text-ellipsis ${
-                                isActive ? 'text-white' : 'text-text-secondary group-hover:text-text-primary'
-                              }`}
-                            >
+                            <span className="truncate">
                               {item.label}
                             </span>
                           </>
@@ -184,32 +179,26 @@ export default function AppSidebar({ open, onClose, collapsed, onToggleCollapse 
           )}
         </nav>
 
-        {/* Zoho Books Bottom Toggle Button (Exact Icon & Position from User Image) */}
-        <div className="hidden lg:block border-t border-border bg-surface-muted/40 hover:bg-surface-muted transition-colors">
+        {/* Bottom Collapse Toggle Button */}
+        <div className="hidden lg:block border-t border-[#1A2B55] bg-[#0A142E]">
           <button
             type="button"
             onClick={onToggleCollapse}
-            className={`w-full flex items-center justify-center py-3.5 text-text-secondary hover:text-text-primary transition-colors ${
+            className={`w-full flex items-center justify-center py-3 text-slate-400 hover:text-white hover:bg-[#122045] transition-colors ${
               collapsed ? 'px-0' : 'px-4 justify-between'
             }`}
             title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             {!collapsed && (
-              <span className="text-xs font-semibold text-text-secondary">
-                Collapse Menu
+              <span className="text-xs font-medium text-slate-400">
+                Collapse Sidebar
               </span>
             )}
             <ZohoCollapseIcon collapsed={collapsed} />
           </button>
         </div>
 
-        {/* Mobile footer */}
-        <div className="lg:hidden border-t border-border p-3 text-center">
-          <p className="text-[10px] text-text-muted">
-            Thai Residency Hotel Management v2.0
-          </p>
-        </div>
       </aside>
     </>
   )

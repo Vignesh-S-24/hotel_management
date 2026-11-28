@@ -5,7 +5,7 @@ import { Check, ChevronDown, Mail, MailOpen, X } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useData } from '../../context/DataContext'
 import { useDialogBehavior } from '../../hooks/useDialogBehavior'
-import { NOTIFICATION_TYPES } from '../../utils/constants'
+import { NOTIFICATION_TYPES, ROLES } from '../../utils/constants'
 import { formatDateTime, timeAgo } from '../../utils/formatDate'
 import CommonBadge from '../common/CommonBadge'
 import { useToast } from '../common/CommonToast'
@@ -63,13 +63,32 @@ export default function NotificationDrawer({ open, onClose }) {
   const typeMenuRef = useRef(null)
   const seenRef = useRef(null)
 
+  const roleAvailableTypes = useMemo(() => {
+    switch (user?.role) {
+      case ROLES.HK:
+        return ['housekeeping', 'room', 'inventory']
+      case ROLES.FO:
+        return ['room', 'housekeeping', 'inspection']
+      case ROLES.SUPERVISOR:
+        return ['room', 'housekeeping', 'inspection', 'maintenance', 'inventory']
+      case ROLES.OWNER:
+      default:
+        return Object.keys(NOTIFICATION_TYPES)
+    }
+  }, [user?.role])
+
+  const filteredTypeEntries = useMemo(() => {
+    return Object.entries(NOTIFICATION_TYPES).filter(([key]) => roleAvailableTypes.includes(key))
+  }, [roleAvailableTypes])
+
   const list = useMemo(
     () =>
       myNotifications.filter((n) => {
-        if (tab === 'unread' && n.readBy.includes(user?.id)) return false
+        const isRead = n.readBy?.includes(user?.id) || n.readBy?.includes(user?.staffId)
+        if (tab === 'unread' && isRead) return false
         return type === 'all' || n.type === type
       }),
-    [myNotifications, tab, type, user?.id],
+    [myNotifications, tab, type, user?.id, user?.staffId],
   )
 
   // Show a desktop notification for anything new once permission is granted.
@@ -118,7 +137,7 @@ export default function NotificationDrawer({ open, onClose }) {
 
   return createPortal(
     <div className="fixed inset-0 z-50">
-      <div className="animate-fade-in absolute inset-0 bg-slate-900/70" onClick={onClose} aria-hidden />
+      <div className="animate-fade-in absolute inset-0 bg-slate-900/30 backdrop-blur-[2px]" onClick={onClose} aria-hidden />
       <aside
         ref={panelRef}
         role="dialog"
@@ -177,7 +196,7 @@ export default function NotificationDrawer({ open, onClose }) {
                   </button>
                   {typeMenuOpen && (
                     <ul role="menu" className="animate-pop-in absolute left-0 z-10 mt-2 w-44 rounded-lg border border-border bg-surface py-1 shadow-overlay">
-                      {[['all', 'All types'], ...Object.entries(NOTIFICATION_TYPES).map(([v, t]) => [v, t.label])].map(([value, label]) => (
+                      {[['all', 'All types'], ...filteredTypeEntries.map(([v, t]) => [v, t.label])].map(([value, label]) => (
                         <li key={value}>
                           <button
                             type="button"

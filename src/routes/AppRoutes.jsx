@@ -18,6 +18,9 @@ const SuppliesPage = lazy(() => import('../pages/shared/SuppliesPage'))
 const StockPage = lazy(() => import('../pages/shared/StockPage'))
 const ReportsPage = lazy(() => import('../pages/shared/ReportsPage'))
 const UsersPage = lazy(() => import('../pages/shared/UsersPage'))
+const ProfilePage = lazy(() => import('../pages/shared/ProfilePage'))
+const MaintenancePage = lazy(() => import('../pages/shared/MaintenancePage'))
+const BreakfastTeaPage = lazy(() => import('../pages/shared/BreakfastTeaPage'))
 
 // Role-Specific Portals
 const OwnerPortal = lazy(() => import('../pages/owner/OwnerPortal'))
@@ -52,6 +55,9 @@ export default function AppRoutes() {
             <Route path="stock" element={<StockPage />} />
             <Route path="reports" element={<ReportsPage />} />
             <Route path="users" element={<UsersPage />} />
+            <Route path="profile" element={<ProfilePage />} />
+            <Route path="maintenance" element={<MaintenancePage />} />
+            <Route path="breakfast-tea" element={<BreakfastTeaPage />} />
 
             {/* Role-Specific Direct Routes */}
             <Route path="owner-control" element={<OwnerPortal />} />

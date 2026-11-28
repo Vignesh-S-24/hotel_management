@@ -11,14 +11,16 @@ import {
   Clock,
   Sparkles,
   Send,
+  Wrench,
 } from 'lucide-react'
 import { useData } from '../../context/DataContext'
 import { useAuth } from '../../context/AuthContext'
-import { DIGITAL_CHECKLIST_SECTIONS, ROOM_STATUS } from '../../utils/constants'
+import { DIGITAL_CHECKLIST_SECTIONS, ROOM_STATUS, MAINTENANCE_CATEGORIES } from '../../utils/constants'
 import CommonButton from '../../components/common/CommonButton'
 import CommonBadge from '../../components/common/CommonBadge'
 import CommonInput from '../../components/common/CommonInput'
 import CommonSelect from '../../components/common/CommonSelect'
+import CommonModal from '../../components/common/CommonModal'
 import { useToast } from '../../components/common/CommonToast'
 
 export default function CleaningTimerChecklist() {
@@ -29,8 +31,17 @@ export default function CleaningTimerChecklist() {
     housekeeperStock,
     recordRoomMaterialConsumption,
     recordWastage,
+    addMaintenanceRequest,
   } = useData()
   const toast = useToast()
+
+  // Maintenance reporting modal (Section 19.8 - HK report issue)
+  const [showMaintModal, setShowMaintModal] = useState(false)
+  const [maintCategory, setMaintCategory] = useState('Plumbing')
+  const [maintTitle, setMaintTitle] = useState('')
+  const [maintDesc, setMaintDesc] = useState('')
+  const [maintPriority, setMaintPriority] = useState('high')
+  const [maintBlock, setMaintBlock] = useState(false)
 
   // Find room assigned to HK currently in progress or assigned
   const myAssignedRooms = (rooms || []).filter(
@@ -232,6 +243,15 @@ export default function CleaningTimerChecklist() {
           >
             Submit for FO Verification
           </CommonButton>
+
+          <CommonButton
+            variant="danger"
+            size="md"
+            icon={Wrench}
+            onClick={() => setShowMaintModal(true)}
+          >
+            Report Maintenance Issue
+          </CommonButton>
         </div>
       </div>
 
@@ -401,6 +421,116 @@ export default function CleaningTimerChecklist() {
           />
         </div>
       </div>
+
+      {/* HK Maintenance Reporting Modal (Section 19.8) */}
+      {showMaintModal && activeRoom && (
+        <CommonModal
+          open={showMaintModal}
+          onClose={() => setShowMaintModal(false)}
+          title={`Report Maintenance Issue: Room ${activeRoom.number}`}
+          footer={
+            <>
+              <CommonButton
+                variant="secondary"
+                size="md"
+                onClick={() => setShowMaintModal(false)}
+              >
+                Cancel
+              </CommonButton>
+              <CommonButton
+                type="submit"
+                form="hk-maint-form"
+                variant="danger"
+                size="md"
+              >
+                Report Issue
+              </CommonButton>
+            </>
+          }
+        >
+          <form
+            id="hk-maint-form"
+            onSubmit={(e) => {
+              e.preventDefault()
+              if (!maintTitle.trim()) {
+                toast.error('Title Required', 'Please enter issue summary.')
+                return
+              }
+              addMaintenanceRequest({
+                roomNumber: activeRoom.number,
+                commonArea: '',
+                floor: activeRoom.floor,
+                category: maintCategory,
+                title: maintTitle,
+                description: maintDesc,
+                priority: maintPriority,
+                roomBlocked: maintBlock,
+                reportedBy: `${user?.name || 'HK Staff'} (HK)`,
+              })
+              toast.warning('Maintenance Reported', `Supervisor notified of ${maintCategory} issue in Room ${activeRoom.number}.`)
+              setShowMaintModal(false)
+              setMaintTitle('')
+              setMaintDesc('')
+            }}
+            className="space-y-4"
+          >
+            <div className="grid grid-cols-2 gap-3">
+              <CommonSelect
+                label="Defect Category"
+                required
+                value={maintCategory}
+                onChange={(e) => setMaintCategory(e.target.value)}
+                options={MAINTENANCE_CATEGORIES.map((c) => ({ value: c, label: c }))}
+              />
+
+              <CommonSelect
+                label="Priority"
+                value={maintPriority}
+                onChange={(e) => setMaintPriority(e.target.value)}
+                options={[
+                  { value: 'low', label: 'Low' },
+                  { value: 'medium', label: 'Medium' },
+                  { value: 'high', label: 'High' },
+                  { value: 'urgent', label: 'Urgent' },
+                ]}
+              />
+            </div>
+
+            <CommonInput
+              label="Issue Summary"
+              required
+              value={maintTitle}
+              onChange={(e) => setMaintTitle(e.target.value)}
+              placeholder="e.g. Shower mixer broken / AC not cooling"
+            />
+
+            <CommonInput
+              label="Description & Notes"
+              multiline
+              rows={2}
+              value={maintDesc}
+              onChange={(e) => setMaintDesc(e.target.value)}
+              placeholder="Explain where the defect is located in the room..."
+            />
+
+            <div className="p-3 rounded-xl border border-rose-500/20 bg-rose-500/10 flex items-center justify-between">
+              <div>
+                <span className="text-xs font-bold text-rose-700 dark:text-rose-400">Block Room from Booking?</span>
+                <p className="text-[11px] text-text-secondary">Mark room NOT AVAILABLE until technician fixes it.</p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={maintBlock}
+                  onChange={(e) => setMaintBlock(e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-9 h-5 bg-surface-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-rose-600"></div>
+              </label>
+            </div>
+          </form>
+        </CommonModal>
+      )}
     </div>
   )
 }

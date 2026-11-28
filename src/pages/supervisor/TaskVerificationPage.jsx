@@ -180,10 +180,7 @@ export default function TaskVerificationPage() {
       </div>
 
       {/* All Tasks Table with CommonTable */}
-      <div className="bg-surface rounded-lg border border-border overflow-hidden shadow-sm mt-6">
-        <div className="p-3.5 border-b border-border bg-surface-muted/40">
-          <h2 className="text-xs font-bold text-text-primary">All Hotel Operations Daily Tasks</h2>
-        </div>
+      <div className="mt-6">
         <CommonTable
           columns={[
             {

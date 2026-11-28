@@ -164,10 +164,7 @@ export default function RoomVerificationPage() {
       </div>
 
       {/* Reclean & Other Room Status Board with CommonTable */}
-      <div className="bg-surface rounded-lg border border-border overflow-hidden shadow-sm mt-6">
-        <div className="p-3.5 border-b border-border bg-surface-muted/40">
-          <h2 className="text-xs font-bold text-text-primary">All Hotel Rooms & Cleaning Status Audit</h2>
-        </div>
+      <div className="mt-6">
         <CommonTable
           columns={[
             {

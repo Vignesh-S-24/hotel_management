@@ -14,11 +14,103 @@ import {
   wastageRecordsSeed,
   standardConsumptionSeed,
 } from '../data/thaiResidencyData'
+import { maintenanceSeed } from '../data/maintenance'
 import { useLocalStorage } from '../hooks/useLocalStorage'
-import { STORAGE_KEYS, ROOM_STATUS, TASK_STATUS, ROLES } from '../utils/constants'
+import { STORAGE_KEYS, ROOM_STATUS, TASK_STATUS, ROLES, MAINTENANCE_STATUS } from '../utils/constants'
 import { useAuth } from './AuthContext'
 
 const DataContext = createContext(null)
+
+const defaultMaintenanceRequests = maintenanceSeed.map((m, i) => ({
+  id: m.id || `m-300${i + 1}`,
+  roomNumber: m.roomId ? m.roomId.replace('r-', '') : '',
+  commonArea: m.location || '',
+  floor: m.roomId ? Number(m.roomId.replace('r-', '')[0]) || 1 : 1,
+  category: m.category || 'Plumbing',
+  title: m.title || '',
+  description: m.description || '',
+  priority: m.priority || 'medium',
+  roomBlocked: m.priority === 'high' || m.priority === 'critical',
+  beforePhotos: ['https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=500'],
+  afterPhotos: m.status === 'completed' ? ['https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=500'] : [],
+  reportedBy: m.reportedBy || 'Rajesh Kumar',
+  reportedDate: new Date(Date.now() - 86400000).toISOString(),
+  assignedTo: m.assigneeId || 'Murugan Velu',
+  expectedCompletionDate: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+  status: m.status === 'completed' ? MAINTENANCE_STATUS.VERIFIED : m.status === 'in_progress' ? MAINTENANCE_STATUS.IN_PROGRESS : MAINTENANCE_STATUS.PENDING,
+  workDoneRemarks: m.resolution || '',
+  materialsUsed: '',
+  reopenedReason: '',
+}))
+
+const defaultBreakfastRecords = [
+  {
+    id: 'bf-1',
+    date: new Date().toISOString().split('T')[0],
+    customersServed: 42,
+    recordedBy: 'Ananya Sharma (FO)',
+    remarks: 'Peak check-in breakfast service on Sunday',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'bf-2',
+    date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
+    customersServed: 38,
+    recordedBy: 'Rajesh Kumar (Supervisor)',
+    remarks: 'Buffet completed normally',
+    createdAt: new Date(Date.now() - 86400000).toISOString(),
+  },
+]
+
+const defaultTeaCoffeeRecords = [
+  {
+    id: 'tc-1',
+    date: new Date().toISOString().split('T')[0],
+    teaCount: 56,
+    coffeeCount: 38,
+    total: 94,
+    serviceTime: '07:00 - 10:30 AM',
+    recordedBy: 'Ananya Sharma (FO)',
+    remarks: 'Morning executive lounge & room delivery',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'tc-2',
+    date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
+    teaCount: 48,
+    coffeeCount: 34,
+    total: 82,
+    serviceTime: '07:00 - 10:30 AM',
+    recordedBy: 'Rajesh Kumar (Supervisor)',
+    remarks: 'Regular morning service',
+    createdAt: new Date(Date.now() - 86400000).toISOString(),
+  },
+]
+
+const defaultBreakfastWastage = [
+  {
+    id: 'bfw-1',
+    date: new Date().toISOString().split('T')[0],
+    item: 'Breakfast',
+    quantity: 4,
+    unit: 'portions',
+    reason: 'Excess Prepared',
+    recordedBy: 'Ananya Sharma (FO)',
+    remarks: 'Remaining Idli/Vada platter unconsumed after 10:30 AM buffet',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'bfw-2',
+    date: new Date().toISOString().split('T')[0],
+    item: 'Coffee',
+    quantity: 3,
+    unit: 'cups',
+    reason: 'Spilled / Damaged',
+    recordedBy: 'Murugan Velu (HK)',
+    remarks: 'Flask slipped during transit to 2nd floor service pantry',
+    createdAt: new Date().toISOString(),
+  },
+]
 
 const buildSeed = () => ({
   floors: floorsSeed,
@@ -34,6 +126,10 @@ const buildSeed = () => ({
   stockRequests: stockRequestsSeed,
   wastageRecords: wastageRecordsSeed,
   standardConsumptions: standardConsumptionSeed,
+  maintenanceRequests: defaultMaintenanceRequests,
+  breakfastRecords: defaultBreakfastRecords,
+  teaCoffeeRecords: defaultTeaCoffeeRecords,
+  breakfastWastage: defaultBreakfastWastage,
   notifications: [
     {
       id: 'notif-1',
@@ -1039,6 +1135,204 @@ export function DataProvider({ children }) {
     [mutate, addLog]
   )
 
+  // --- Repair and Maintenance Management (Section 19) ---
+  const addMaintenanceRequest = useCallback(
+    (req) => {
+      const newId = uid('m')
+      mutate((d) => {
+        const item = {
+          id: newId,
+          ...req,
+          status: MAINTENANCE_STATUS.PENDING,
+          reportedDate: new Date().toISOString(),
+          reportedBy: req.reportedBy || user?.name || 'Staff',
+          afterPhotos: [],
+          workDoneRemarks: '',
+          materialsUsed: '',
+          reopenedReason: '',
+        }
+        d.maintenanceRequests = [item, ...(d.maintenanceRequests || [])]
+
+        // If Room Blocked is true, update room status so it is unavailable for check-in/cleaning
+        if (req.roomBlocked && req.roomNumber) {
+          d.rooms = (d.rooms || []).map((r) =>
+            r.number === req.roomNumber ? { ...r, status: ROOM_STATUS.NOT_AVAILABLE, maintenanceBlocked: true } : r
+          )
+        }
+      })
+
+      addLog('Maintenance Requested', `Reported issue "${req.title}" for ${req.roomNumber ? `Room ${req.roomNumber}` : req.commonArea}`)
+      addNotification({
+        title: `New Maintenance: ${req.title}`,
+        message: `Reported for ${req.roomNumber ? `Room ${req.roomNumber}` : req.commonArea} (${req.category}) - Priority: ${req.priority.toUpperCase()}`,
+        type: 'maintenance',
+        audience: [ROLES.SUPERVISOR, ROLES.OWNER],
+        link: '/app/maintenance',
+      })
+    },
+    [mutate, user, addLog, addNotification]
+  )
+
+  const updateMaintenanceStatus = useCallback(
+    (id, status, extra = {}) => {
+      mutate((d) => {
+        d.maintenanceRequests = (d.maintenanceRequests || []).map((m) => {
+          if (m.id !== id) return m
+          const updated = { ...m, status, ...extra }
+          if (status === MAINTENANCE_STATUS.COMPLETED) {
+            updated.completedAt = new Date().toISOString()
+            updated.completedBy = user?.name || 'Staff'
+          }
+          if (status === MAINTENANCE_STATUS.VERIFIED) {
+            updated.verifiedAt = new Date().toISOString()
+            updated.verifiedBy = user?.name || 'Supervisor'
+            // Unblock room if it was blocked
+            if (updated.roomBlocked && updated.roomNumber) {
+              d.rooms = (d.rooms || []).map((r) =>
+                r.number === updated.roomNumber ? { ...r, maintenanceBlocked: false, status: ROOM_STATUS.CLEANING_REQUIRED } : r
+              )
+            }
+          }
+          return updated
+        })
+      })
+
+      addLog('Maintenance Status Changed', `Maintenance ${id} changed to ${status.toUpperCase()}`)
+      addNotification({
+        title: `Maintenance Updated: ${status.toUpperCase()}`,
+        message: `Maintenance task #${id} has been transitioned to ${status.toUpperCase()}.`,
+        type: 'maintenance',
+        audience: [ROLES.SUPERVISOR, ROLES.OWNER, ROLES.FO],
+        link: '/app/maintenance',
+      })
+    },
+    [mutate, user, addLog, addNotification]
+  )
+
+  // --- Dining, Meals & Beverages Management (Breakfast, Lunch, Dinner, Tea/Coffee) ---
+  const recordMealCount = useCallback(
+    ({ date, mealType = 'Breakfast', customersServed, remarks }) => {
+      mutate((d) => {
+        // Also keep d.breakfastRecords in sync for backward compatibility
+        const existing = (d.mealRecords || []).find((r) => r.date === date && r.mealType === mealType)
+        if (existing) {
+          d.mealRecords = d.mealRecords.map((r) =>
+            r.date === date && r.mealType === mealType
+              ? { ...r, customersServed: Number(customersServed), remarks, updatedBy: user?.name, updatedAt: new Date().toISOString() }
+              : r
+          )
+        } else {
+          d.mealRecords = [
+            {
+              id: uid('meal'),
+              date,
+              mealType,
+              customersServed: Number(customersServed),
+              recordedBy: user?.name || 'Staff',
+              remarks,
+              createdAt: new Date().toISOString(),
+            },
+            ...(d.mealRecords || []),
+          ]
+        }
+
+        // Backward compatibility for breakfastRecords
+        if (mealType === 'Breakfast') {
+          const exBf = (d.breakfastRecords || []).find((r) => r.date === date)
+          if (exBf) {
+            d.breakfastRecords = d.breakfastRecords.map((r) =>
+              r.date === date ? { ...r, customersServed: Number(customersServed), remarks } : r
+            )
+          } else {
+            d.breakfastRecords = [
+              {
+                id: uid('bf'),
+                date,
+                customersServed: Number(customersServed),
+                recordedBy: user?.name || 'Staff',
+                remarks,
+                createdAt: new Date().toISOString(),
+              },
+              ...(d.breakfastRecords || []),
+            ]
+          }
+        }
+      })
+      addLog(`${mealType} Count Recorded`, `Served ${customersServed} guests for ${date}`)
+    },
+    [mutate, user, addLog]
+  )
+
+  const recordBreakfastCount = useCallback(
+    ({ date, customersServed, remarks }) => {
+      recordMealCount({ date, mealType: 'Breakfast', customersServed, remarks })
+    },
+    [recordMealCount]
+  )
+
+  const recordTeaCoffeeCount = useCallback(
+    ({ date, teaCount, coffeeCount, serviceTime, remarks }) => {
+      const tc = Number(teaCount || 0)
+      const cc = Number(coffeeCount || 0)
+      mutate((d) => {
+        const existing = (d.teaCoffeeRecords || []).find((r) => r.date === date)
+        if (existing) {
+          d.teaCoffeeRecords = d.teaCoffeeRecords.map((r) =>
+            r.date === date
+              ? { ...r, teaCount: tc, coffeeCount: cc, total: tc + cc, serviceTime, remarks, updatedBy: user?.name, updatedAt: new Date().toISOString() }
+              : r
+          )
+        } else {
+          d.teaCoffeeRecords = [
+            {
+              id: uid('tc'),
+              date,
+              teaCount: tc,
+              coffeeCount: cc,
+              total: tc + cc,
+              serviceTime: serviceTime || 'Morning Service',
+              recordedBy: user?.name || 'Staff',
+              remarks,
+              createdAt: new Date().toISOString(),
+            },
+            ...(d.teaCoffeeRecords || []),
+          ]
+        }
+      })
+      addLog('Tea/Coffee Count Recorded', `Recorded ${tc} Tea & ${cc} Coffee for ${date}`)
+    },
+    [mutate, user, addLog]
+  )
+
+  const recordBreakfastWastage = useCallback(
+    ({ date, item, quantity, unit, reason, remarks }) => {
+      mutate((d) => {
+        const entry = {
+          id: uid('bfw'),
+          date,
+          item,
+          quantity: Number(quantity),
+          unit: unit || (item === 'Breakfast' ? 'portions' : 'cups'),
+          reason,
+          recordedBy: user?.name || 'Staff',
+          remarks,
+          createdAt: new Date().toISOString(),
+        }
+        d.breakfastWastage = [entry, ...(d.breakfastWastage || [])]
+      })
+
+      addLog('Breakfast/Tea Wastage Recorded', `${quantity} ${unit} ${item} wasted (${reason})`)
+      addNotification({
+        title: `Breakfast/Beverage Wastage Recorded`,
+        message: `${quantity} ${unit} of ${item} wasted on ${date}. Reason: ${reason}.`,
+        type: 'system',
+        audience: [ROLES.SUPERVISOR, ROLES.OWNER],
+        link: '/app/breakfast-tea',
+      })
+    },
+    [mutate, user, addLog, addNotification]
+  )
+
   return (
     <DataContext.Provider
       value={{
@@ -1083,6 +1377,14 @@ export function DataProvider({ children }) {
         updateStandardConsumption,
         // Training
         addTrainingModule,
+        // Repair and Maintenance (Section 19)
+        addMaintenanceRequest,
+        updateMaintenanceStatus,
+        // Dining, Meals (Breakfast, Lunch, Dinner) & Tea / Coffee
+        recordMealCount,
+        recordBreakfastCount,
+        recordTeaCoffeeCount,
+        recordBreakfastWastage,
       }}
     >
       {children}

@@ -132,7 +132,7 @@ export default function MyStockRequests() {
       </div>
 
       {/* Current Personal Stock Table with CommonTable */}
-      <div className="bg-surface rounded-lg border border-border overflow-hidden shadow-sm">
+      <div className="space-y-3">
         <div className="p-3.5 border-b border-border bg-surface-muted/40 flex items-center justify-between">
           <span className="text-xs font-bold text-text-primary">My Trolley / Caddy Stock Items</span>
           <CommonBadge tone="neutral">Assigned to: {user?.name}</CommonBadge>
@@ -211,7 +211,7 @@ export default function MyStockRequests() {
       </div>
 
       {/* Stock Request History with CommonTable */}
-      <div className="bg-surface rounded-lg border border-border overflow-hidden shadow-sm">
+      <div className="space-y-3">
         <div className="p-3.5 border-b border-border bg-surface-muted/40">
           <h2 className="text-xs font-bold text-text-primary">Stock Request Audit History</h2>
         </div>

@@ -15,6 +15,7 @@ import CommonModal from '../../components/common/CommonModal'
 import CommonInput from '../../components/common/CommonInput'
 import CommonSelect from '../../components/common/CommonSelect'
 import CommonTable from '../../components/common/CommonTable'
+import CommonSearch from '../../components/common/CommonSearch'
 
 export default function StockPage() {
   const { user } = useAuth()
@@ -135,21 +136,17 @@ export default function StockPage() {
           ))}
         </div>
 
-        <div className="relative">
-          <input
-            type="text"
+        <div className="w-full sm:w-64">
+          <CommonSearch
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={setSearchTerm}
             placeholder="Search stock item..."
-            className="field-control pl-8 pr-3 py-1 text-xs"
           />
-          <Search className="w-3.5 h-3.5 text-text-secondary absolute left-2.5 top-2.5" />
         </div>
       </div>
 
       {/* Stock Items Table with CommonTable */}
-      <div className="bg-surface rounded-lg border border-border overflow-hidden shadow-sm">
-        <CommonTable
+      <CommonTable
           columns={[
             {
               key: 'name',
@@ -247,7 +244,6 @@ export default function StockPage() {
           ]}
           rows={filteredItems}
         />
-      </div>
 
       {/* Modal: Add Stock Item with CommonModal */}
       <CommonModal

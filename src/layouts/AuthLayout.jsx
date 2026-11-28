@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom'
-import { Hotel, ClipboardCheck, Sparkles, Shirt } from 'lucide-react'
+import { ClipboardCheck, Sparkles, Shirt } from 'lucide-react'
 import { HOTEL_NAME } from '../utils/constants'
+import thaiLogo from '../assets/logo/ThaiLogo.svg'
 
 const points = [
   {
@@ -27,9 +28,11 @@ export default function AuthLayout() {
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-900 via-primary-dark to-slate-900 text-white p-12 flex-col justify-between relative overflow-hidden">
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-8">
-            <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-white shadow-xl">
-              <Hotel className="w-7 h-7" />
-            </div>
+            <img
+              src={thaiLogo}
+              alt="Thai Residency Logo"
+              className="h-12 w-auto object-contain rounded-md"
+            />
             <div>
               <h2 className="text-xl font-black tracking-tight">{HOTEL_NAME}</h2>
               <span className="text-xs text-white/70 uppercase tracking-wider font-semibold">

@@ -4,12 +4,17 @@
 
 /* Fallback palette for first paint; theme/index.js overwrites these from colors.js. */
 :root {
-  --hm-primary: 37 99 235;
-  --hm-background: 248 250 252;
+  --hm-primary: 27 42 86;
+  --hm-primary-hover: 19 27 56;
+  --hm-primary-soft: 241 244 249;
+  --hm-background: 248 249 252;
   --hm-surface: 255 255 255;
-  --hm-text-primary: 15 23 42;
-  --hm-text-secondary: 100 116 139;
-  --hm-border: 226 232 240;
+  --hm-surface-muted: 241 244 248;
+  --hm-text-primary: 26 39 78;
+  --hm-text-secondary: 98 113 142;
+  --hm-border: 227 232 239;
+  --hm-gold: 182 136 50;
+  --hm-gold-soft: 251 246 235;
 }
 
 @layer base {

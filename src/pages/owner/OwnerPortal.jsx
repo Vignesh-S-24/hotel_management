@@ -98,7 +98,7 @@ export default function OwnerPortal() {
             <CommonBadge tone="primary" dot>Formula: Variance = Actual - Standard</CommonBadge>
           </div>
 
-          <div className="bg-surface rounded-lg border border-border overflow-hidden shadow-sm">
+          <div className="space-y-3">
             <CommonTable
               columns={[
                 {
@@ -174,7 +174,7 @@ export default function OwnerPortal() {
 
       {/* Tab 2: Material Wastage Audits (Section 17 & 22) */}
       {activeTab === 'wastage_audits' && (
-        <div className="bg-surface rounded-lg border border-border overflow-hidden shadow-sm">
+        <div className="space-y-3">
           <CommonTable
             columns={[
               {
@@ -209,7 +209,7 @@ export default function OwnerPortal() {
 
       {/* Tab 3: Complete Security Audit Trail (Section 23 & 28) */}
       {activeTab === 'audit_logs' && (
-        <div className="bg-surface rounded-lg border border-border overflow-hidden shadow-sm">
+        <div className="space-y-3">
           <div className="p-3.5 border-b border-border bg-surface-muted/50 flex items-center justify-between">
             <span className="text-xs font-semibold text-text-secondary">Immutable System Operational Logs</span>
             <CommonBadge tone="neutral">Read-only audit record</CommonBadge>
