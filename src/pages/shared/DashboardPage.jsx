@@ -99,11 +99,11 @@ export default function DashboardPage() {
     .reduce((sum, w) => sum + Number(w.quantity || 0), 0)
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2.5">
       {/* Welcome Banner */}
-      <div className="bg-gradient-to-r from-primary to-blue-700 text-white rounded-2xl px-6 py-4 sm:px-8 sm:py-5 shadow-lg relative overflow-hidden">
+      <div className="bg-gradient-to-r from-primary to-blue-700 text-white rounded-2xl px-6 py-3.5 sm:px-8 sm:py-4 shadow-lg relative overflow-hidden">
         <div className="relative z-10 max-w-2xl">
-          <h1 className="text-xl sm:text-2xl font-black tracking-tight mb-1">
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight mb-0.5">
             Welcome back, {user?.name}!
           </h1>
           <p className="text-xs sm:text-sm text-white/85 leading-relaxed">
@@ -113,7 +113,7 @@ export default function DashboardPage() {
       </div>
 
       {/* KPI Stats Grid (from Section 9) */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
         {/* Total Employees */}
         <div className="bg-surface rounded-2xl border border-border p-4 shadow-sm flex items-center gap-3">
           <div className="w-11 h-11 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center shrink-0">
